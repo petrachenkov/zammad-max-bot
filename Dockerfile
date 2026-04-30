@@ -1,34 +1,27 @@
 FROM python:3.11-slim
 
-# Рабочая директория
 WORKDIR /app
 
-# Установка системных зависимостей
+# Системные зависимости
 RUN apt-get update && apt-get install -y \
-    sqlite3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Копирование файлов зависимостей
+# Python зависимости
 COPY requirements.txt .
-
-# Установка Python зависимостей
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копирование всего проекта
+# Копирование проекта
 COPY . .
 
-# Создание папки для временных файлов
-RUN mkdir -p temp reports
-
-# Создание файлов логов
+# Папки для данных
+RUN mkdir -p data reports temp logs
 RUN touch bot.log webhook.log
 
-# Переменные окружения
+# Переменные
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Порт для webhook сервера
-EXPOSE 8080
+EXPOSE 8081
 
-# Команда запуска
 CMD ["python", "main.py"]
