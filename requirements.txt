@@ -1,0 +1,14 @@
+maxapi[fastapi]
+maxapi
+zammad-py
+python-dotenv
+fastapi
+uvicorn[standard]
+aiohttp
+pydantic
+requests
+urllib3
+sqlalchemy
+xlsxwriter
+aiofiles
+openpyxl

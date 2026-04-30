@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  zammad-max-bot:
+    build: .
+    container_name: zammad-max-bot
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # Базы данных (сохраняются при перезапуске)
+      - ./data/bot.db:/app/bot.db
+      - ./data/cartridges.db:/app/cartridges.db
+      # Отчёты Excel
+      - ./reports:/app/reports
+      # Логи
+      - ./logs:/app/logs
+      # Временные файлы
+      - ./temp:/app/temp
+    environment:
+      # MAX Bot
+      - MAX_BOT_TOKEN=${MAX_BOT_TOKEN}
+      # Zammad
+      - ZAMMAD_URL=${ZAMMAD_URL}
+      - ZAMMAD_TOKEN=${ZAMMAD_TOKEN}
+      # Webhook
+      - ENABLE_WEBHOOK=${ENABLE_WEBHOOK:-true}
+      - WEBHOOK_HOST=0.0.0.0
+      - WEBHOOK_PORT=8080
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      # Картриджи
+      - CARTRIDGE_CHAT_ID=${CARTRIDGE_CHAT_ID}
+      - CARTRIDGE_DB_URL=sqlite:///cartridges.db
+      - CARTRIDGE_REPORTS_DIR=reports
+    networks:
+      - zammad-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  zammad-network:
+    driver: bridge
