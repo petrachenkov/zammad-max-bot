@@ -6,41 +6,40 @@ services:
     container_name: zammad-max-bot
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:8081"  
     volumes:
-      # Базы данных (сохраняются при перезапуске)
-      - ./data/bot.db:/app/bot.db
-      - ./data/cartridges.db:/app/cartridges.db
-      # Отчёты Excel
-      - ./reports:/app/reports
+      # Базы данных
+      - bot-data:/app/data
+      # Отчёты
+      - bot-reports:/app/reports
       # Логи
-      - ./logs:/app/logs
+      - bot-logs:/app/logs
       # Временные файлы
-      - ./temp:/app/temp
+      - bot-temp:/app/temp
     environment:
-      # MAX Bot
+      # Читаем из .env файла
       - MAX_BOT_TOKEN=${MAX_BOT_TOKEN}
-      # Zammad
       - ZAMMAD_URL=${ZAMMAD_URL}
       - ZAMMAD_TOKEN=${ZAMMAD_TOKEN}
-      # Webhook
-      - ENABLE_WEBHOOK=${ENABLE_WEBHOOK:-true}
-      - WEBHOOK_HOST=0.0.0.0
-      - WEBHOOK_PORT=8080
-      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
-      # Картриджи
+      - ZAMMAD_USER_EMAIL=${ZAMMAD_USER_EMAIL}
+      - ZAMMAD_DEFAULT_GROUP=${ZAMMAD_DEFAULT_GROUP}
+      - ZAMMAD_DEFAULT_PRIORITY=${ZAMMAD_DEFAULT_PRIORITY}
+      - BOT_LANGUAGE=${BOT_LANGUAGE}
+      - ENABLE_WEBHOOK=${ENABLE_WEBHOOK}
+      - WEBHOOK_HOST=${WEBHOOK_HOST}
+      - WEBHOOK_PORT=${WEBHOOK_PORT}
       - CARTRIDGE_CHAT_ID=${CARTRIDGE_CHAT_ID}
-      - CARTRIDGE_DB_URL=sqlite:///cartridges.db
-      - CARTRIDGE_REPORTS_DIR=reports
-    networks:
-      - zammad-network
+      - CARTRIDGE_DB_URL=${CARTRIDGE_DB_URL}
+      - CARTRIDGE_REPORTS_DIR=${CARTRIDGE_REPORTS_DIR}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
 
-networks:
-  zammad-network:
-    driver: bridge
+volumes:
+  bot-data:
+  bot-reports:
+  bot-logs:
+  bot-temp:
